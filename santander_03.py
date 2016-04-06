@@ -20,16 +20,13 @@ class hella_rfs():
         i = 0
         for chunk in chunks:
             print('training svm %s of %s' %(i,num_chunks))
-            chunk_rf = RandomForestClassifier(n_estimators = 50)
+            chunk_rf = RandomForestClassifier(n_estimators = 100, n_jobs = -1)
             chunk_ones = ones[np.random.rand(ones.shape[0])>0.5,:]
             chunk_train_X = np.concatenate([chunk,chunk_ones])
             chunk_train_Y = np.concatenate([np.zeros([chunk.shape[0],1]),np.ones([chunk_ones.shape[0],1])]).ravel()
             chunk_rf.fit(chunk_train_X,chunk_train_Y)
             self.rfs.append(chunk_rf)
             i+=1
-        #remove the last one, since it wont be as good as the rest
-        #probably should just not train it in the first place
-        self.rfs = self.rfs[:-1]
     def predict(self,test_df):
         test_X = np.array(test_df)
         predictions = []
@@ -44,6 +41,12 @@ def cross_validate():
     #read data
     all_df = pd.read_csv('./data/train.csv',index_col = 'ID')
 
+    #feature selection 
+    feature_selection = feature_importance(all_df) > 0.0001
+    feature_selection = list(feature_selection.ravel())
+    feature_selection.append(True)
+    all_df = all_df[all_df.columns[feature_selection]]
+    
     #split data
     #need to be more intelligent about this
     zeros_df = all_df[all_df.TARGET == 0]
@@ -61,6 +64,9 @@ def cross_validate():
     train_df = pd.concat([zeros_train_df,ones_train_df])
     test_df = pd.concat([zeros_test_df,ones_test_df])
     #return(test_df,train_df)
+    
+    
+    
     #train
     my_hella_rfs = hella_rfs()
     my_hella_rfs.fit(train_df)
@@ -100,9 +106,16 @@ def run_for_kaggle():
     #output
     out_df = pd.DataFrame(np.array([test_df.index,predictions]).T,columns = ['ID','TARGET'])
     out_df.to_csv('predictions.csv',index = False)
-    
+
+def feature_importance(all_df):
+    train_X = np.array(all_df.drop('TARGET', axis = 1))
+    train_Y = np.array(all_df.TARGET)
+    rf = RandomForestClassifier(n_estimators = 100, n_jobs = -1, class_weight = 'balanced')
+    rf.fit(train_X,train_Y)
+    return(rf.feature_importances_)
+
 if __name__ == '__main__':
-    #cross_validate()
-    run_for_kaggle()
+    cross_validate()
+    #run_for_kaggle()
     
     

@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from sklearn import svm
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import confusion_matrix
 from scipy.stats import mode
 
@@ -44,6 +45,12 @@ def cross_validate():
     #read data
     all_df = pd.read_csv('./data/train.csv',index_col = 'ID')
 
+    #feature selection 
+    feature_selection = feature_importance(all_df) > 0.001
+    feature_selection = list(feature_selection.ravel())
+    feature_selection.append(True)
+    all_df = all_df[all_df.columns[feature_selection]]
+    
     #split data
     #need to be more intelligent about this
     zeros_df = all_df[all_df.TARGET == 0]
@@ -77,7 +84,14 @@ def cross_validate():
     print(sum(test_Y.reshape(predictions.shape) == predictions)/len(test_Y))
     #return(test_Y,predictions)
     #return(test_df,train_df)
-    
+   
+def feature_importance(all_df):
+    train_X = np.array(all_df.drop('TARGET', axis = 1))
+    train_Y = np.array(all_df.TARGET)
+    rf = RandomForestClassifier(n_estimators = 100, n_jobs = -1, class_weight = 'balanced')
+    rf.fit(train_X,train_Y)
+    return(rf.feature_importances_)
+
 def run_for_kaggle():
     #this is for kaggle
     #produces predictions.csv
