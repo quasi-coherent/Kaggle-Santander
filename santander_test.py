@@ -4,33 +4,31 @@ import santander_preprocess as spp
 import santander_cv as scv
 import santander_predict_submit as sps
 
-from sklearn.svm import SVC
+from sklearn.ensemble import AdaBoostClassifier
 
 
 
 print('Performing preprocessing...')
 X_train, y_train = spp.Santander()\
-			.preprocess(pca_components=0.6, resample_method='SMOTE')
+			.preprocess(pca_components=0.6)
 
 
-svc = SVC()
+abc_best = AdaBoostClassifier(learning_rate=0.5, n_estimators=500)
 
-
-# Warning: This part would take quite a while, i.e., forever.  
+ 
 # print('Doing grid search...')
-# grid = [{'kernel':['rbf', 'linear'],
-# 				'gamma': np.logspace(-9, 3, 13),
-# 				'C':np.logspace(-2, 10, 13)}]
-# train_cv = scv.SantanderCV(svc, X_train, y_train, resample=True)
-# svc_best = train_cv.grid_search(param_grid=grid)
-# print('Best model obtained is %s' % svc_best)
+# grid = [{'n_estimators': np.arange(50, 500, 10), 
+# 			'learning_rate': np.linspace(.1, 2, 20)}]
+# train_cv = scv.SantanderCV(abc, X_train, y_train, resample=True)
+# abc_best = train_cv.grid_search(param_grid=grid)
+# print('Best model obtained is %s' % abc_best)
 
 
 print('Performing 10-fold CV...')
-scv.SantanderCV(svc, X_train, y_train, resample=True)\
+scv.SantanderCV(abc_best, X_train, y_train)\
 			.cross_validation()
 
 
 print('Now making submission...')
 X_test = spp.Santander(train=False).preprocess(pca_components=0.6)
-sps.kaggle_submit(svc, X_train, y_train, X_test, 'test')
+sps.kaggle_submit(abc_best, X_train, y_train, X_test, 'test')
