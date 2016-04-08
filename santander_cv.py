@@ -9,7 +9,7 @@ from sklearn.cross_validation import KFold, StratifiedKFold
 
 
 class SantanderCV(object):
-	def __init__(self, model, X, y, resample=False):
+	def __init__(self, model, X, y, resample=False): 
 		self.model = model
 		self.X = X
 		self.y = y

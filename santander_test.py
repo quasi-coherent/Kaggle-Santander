@@ -15,7 +15,8 @@ X_train, y_train = spp.Santander()\
 
 abc_best = AdaBoostClassifier(learning_rate=0.5, n_estimators=500)
 
- 
+
+# This would take a while, i.e., forever.  
 # print('Doing grid search...')
 # grid = [{'n_estimators': np.arange(50, 500, 10), 
 # 			'learning_rate': np.linspace(.1, 2, 20)}]
