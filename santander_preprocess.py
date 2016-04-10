@@ -4,24 +4,50 @@ import numpy as np
 import pandas as pd
 
 import unbalanced_dataset
+from sklearn.feature_selection import SelectKBest, f_classif
 from sklearn.decomposition import PCA
 
 
 class Santander(object):
-	def __init__(self, train=True):
+	def __init__(self, train=True, k_best=False):
 		self.train = train
+		self.k_best = k_best
 		if self.train:
 			df = pd.read_csv('data/train.csv')
 			df = df.loc[:, df.std() > 0]  # Some rows have zero variance
-
 			# Treating -999999 as missing; impute with knn
 			df['var3'] = df['var3'].replace(-999999, 2)
-			self.X = df.ix[:, :-1].values
-			self.y = df.ix[:, -1].values
+
+			X = df.ix[:, :-1].values
+			y = df.ix[:, -1].values
+
+			# Perform feature selection
+			if self.k_best:
+				X = SelectKBest(f_classif, k=self.k_best)\
+							.fit_transform(X, y)
+
+			self.X = X
+			self.y = y
+
+
 		else:
 			df = pd.read_csv('data/test.csv')
 			df = df.loc[:, df.std() > 0]
 			df['var3'] = df['var3'].replace(-999999, 2)
+
+			if self.k_best:
+				df1 = pd.read_csv('data/train.csv')
+				df1 = df1.loc[:, df1.std() > 0]
+				df1['var3'] = df1['var3'].replace(-999999, 2)
+				df1X = df1.ix[:, :-1].values
+				df1y = df1.ix[:, -1].values
+
+				k_indices = SelectKBest(f_classif, k=self.k_best)\
+									.fit(df1X, df1y)\
+									.get_support(indices=True)
+
+				self.X = df.values[:, k_indices]
+
 			self.X = df.values
 
 

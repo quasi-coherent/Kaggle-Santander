@@ -21,7 +21,7 @@ class SantanderCV(object):
 		Grid search to find optimal hyperparameters.
 		'''
 
-		gscv = GridSearchCV(self.model, param_grid=param_grid, cv=cv, verbose=1)
+		gscv = GridSearchCV(self.model, param_grid=param_grid, cv=cv, n_jobs=-1, verbose=1)
 		gscv.fit(self.X, self.y)
 		print('Best estimator was %s' % gscv.best_estimator_)
 		return gscv.best_estimator_
@@ -52,7 +52,7 @@ class SantanderCV(object):
 				self.model.fit(X_train, y_train)
 				acc.append(self.model.score(X_test, y_test))
 			mean_acc = sum(acc) / len(acc)
-			print(mean_acc)
+			print('Mean accuracy is %f' % mean_acc)
 
 
 		else:
@@ -65,5 +65,5 @@ class SantanderCV(object):
 				self.model.fit(X_train, y_train)
 				acc.append(self.model.score(X_test, y_test))
 			mean_acc = sum(acc) / len(acc)
-			print(mean_acc)
+			print('Mean accuracy is %f' % mean_acc)
 
