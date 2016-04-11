@@ -44,7 +44,8 @@ class Santander(object):
 
 				k_indices = SelectKBest(f_classif, k=self.k_best)\
 									.fit(df1X, df1y)\
-									.get_support(indices=True)
+									.get_support(indices=True)\
+									.ravel()
 
 				self.X = df.values[:, k_indices]
 
