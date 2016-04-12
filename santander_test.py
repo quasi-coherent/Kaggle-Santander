@@ -10,14 +10,14 @@ from sklearn.ensemble import AdaBoostClassifier
 
 
 print('Performing preprocessing...')
-X_train, y_train = spp.Santander()\
+X_train, y_train = spp.Santander(k_best=100)\
 			.preprocess(resample_method='SMOTE', ratio=24.0)
 
 
 bdt = AdaBoostClassifier(DecisionTreeClassifier(max_depth=1), 
 						algorithm='SAMME',
-						n_estimators=1000,
-						learning_rate=0.2)
+						n_estimators=500,
+						learning_rate=0.5)
 
 
 # This would take a while, i.e., forever.  
@@ -35,5 +35,5 @@ bdt = AdaBoostClassifier(DecisionTreeClassifier(max_depth=1),
 
 
 print('Now making submission...')
-X_test = spp.Santander(train=False).preprocess()
+X_test = spp.Santander(train=False, k_best=100).preprocess()
 sps.kaggle_submit(bdt, X_train, y_train, X_test, 'tree_boost')
