@@ -11,13 +11,13 @@ from sklearn.ensemble import AdaBoostClassifier
 
 print('Performing preprocessing...')
 X_train, y_train, X_test = spp.Santander(k_best=100)\
-			.preprocess(resample_method='SMOTE', ratio=24.0)
+			.preprocess(resample_method='SMOTE', ratio=23.0)
 
 
 bdt = AdaBoostClassifier(DecisionTreeClassifier(max_depth=1), 
 						algorithm='SAMME',
-						n_estimators=500,
-						learning_rate=0.5)
+						n_estimators=1000,
+						learning_rate=0.2)
 
 
 # This would take a while, i.e., forever.  
