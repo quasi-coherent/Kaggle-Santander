@@ -20,7 +20,7 @@ X_train, y_train, X_test = spp.Santander(k_best=100)\
 						#learning_rate=0.2)
 
 from hella_rfs import hella_rfs
-hrfs = hella_rfs()
+hrfs = hella_rfs(use_weights = True)
 
 # This would take a while, i.e., forever.  
 # print('Doing grid search...')
