@@ -11,14 +11,16 @@ from sklearn.ensemble import AdaBoostClassifier
 
 print('Performing preprocessing...')
 X_train, y_train, X_test = spp.Santander(k_best=100)\
-			.preprocess(resample_method='SMOTE', ratio=23.0)
+			.preprocess(resample_method=None, ratio=23.0)
 
 
-bdt = AdaBoostClassifier(DecisionTreeClassifier(max_depth=1), 
-						algorithm='SAMME',
-						n_estimators=1000,
-						learning_rate=0.2)
+#bdt = AdaBoostClassifier(DecisionTreeClassifier(max_depth=1), 
+						#algorithm='SAMME',
+						#n_estimators=1000,
+						#learning_rate=0.2)
 
+from hella_rfs import hella_rfs
+hrfs = hella_rfs()
 
 # This would take a while, i.e., forever.  
 # print('Doing grid search...')
@@ -35,4 +37,4 @@ bdt = AdaBoostClassifier(DecisionTreeClassifier(max_depth=1),
 
 
 print('Now making submission...')
-sps.kaggle_submit(bdt, X_train, y_train, X_test, 'tree_boost')
+sps.kaggle_submit(hrfs, X_train, y_train, X_test, 'hella_rfs')
