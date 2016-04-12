@@ -9,45 +9,30 @@ from sklearn.decomposition import PCA
 
 
 class Santander(object):
-	def __init__(self, train=True, k_best=False):
-		self.train = train
+	def __init__(self, k_best=False):
 		self.k_best = k_best
-		if self.train:
-			df = pd.read_csv('data/train.csv')
-			df = df.loc[:, df.std() > 0]  # Some rows have zero variance
-			# Treating -999999 as missing; impute with knn
-			df['var3'] = df['var3'].replace(-999999, 2)
+		train = pd.read_csv('data/train.csv')
+		test = pd.read_csv('data/test.csv')
+		# Some rows have zero variance
+		train = train.loc[:, train.std() > 0] 
+		test = test.loc[:, test.std() > 0]
 
-			X = df.ix[:, :-1].values
-			y = df.ix[:, -1].values
+		# Treating -999999 as missing; impute with knn
+		train['var3'] = train['var3'].replace(-999999, 2)
+		test['var3'] = test['var3'].replace(-999999, 2)
+		X_train = train.ix[:, :-1].values
+		y_train = train.ix[:, -1].values.ravel()
+		X_test = test.values.ravel()
 
-			# Perform feature selection
-			if self.k_best:
-				X = SelectKBest(f_classif, k=self.k_best)\
-							.fit_transform(X, y)
-
-			self.X = X
-			self.y = y
-
-
-		else:
-			df = pd.read_csv('data/test.csv')
-			df = df.loc[:, df.std() > 0]
-			df['var3'] = df['var3'].replace(-999999, 2)
-
-			if self.k_best:
-				df1 = pd.read_csv('data/train.csv')
-				df1 = df1.loc[:, df1.std() > 0]
-				df1['var3'] = df1['var3'].replace(-999999, 2)
-				df1X = df1.ix[:, :-1].values
-				df1y = df1.ix[:, -1].values
-
-				kb = SelectKBest(f_classif, k=self.k_best)\
-									.fit(df1X, df1y)
-
-				self.X = df.values[kb.get_support(indices=True)]
-
-			self.X = df.values
+		if self.k_best:
+			# Select k best features by F-score
+			kb = SelectKBest(f_classif, k=self.k_best)
+			X_train = kb.fit_transform(X_train, y_train)
+			X_test = kb.transform(X_test)
+			
+		self.X_train = X_train
+		self.y_train = y_train
+		self.X_test = X_test
 
 
 	def preprocess(self, pca_components=None, resample_method=None, ratio=1.0):
@@ -77,34 +62,31 @@ class Santander(object):
 		'''
 
 		pca = PCA(n_components=pca_components)
-
-		if not self.train:
-			return pca.fit_transform(self.X)
 		
 		if resample_method == 'UnderSampler':
 			US = unbalanced_dataset.under_sampling\
 						.UnderSampler(verbose=True, ratio=ratio)
-			usX, usy = US.fit_transform(self.X, self.y)
-			return pca.fit_transform(usX), usy
+			usX, usy = US.fit_transform(self.X_train, self.y_train)
+			return pca.fit_transform(usX), usy, pca.fit_transform(self.X_test)
 
 		elif resample_method == 'OverSampler':
 			OS = unbalanced_dataset.over_sampling\
 						.OverSampler(verbose=True, ratio=ratio)
-			osX, osy = OS.fit_transform(self.X, self.y)
-			return pca.fit_transform(osX), osy
+			osX, osy = OS.fit_transform(self.X_train, self.y_train)
+			return pca.fit_transform(osX), osy, pca.fit_transform(self.X_test)
 
 		elif resample_method == 'SMOTE':
 			SM = unbalanced_dataset.over_sampling\
 						.SMOTE(kind='regular', verbose=True, ratio=ratio)
-			smX, smy = SM.fit_transform(self.X, self.y)
-			return pca.fit_transform(smX), smy
+			smX, smy = SM.fit_transform(self.X_train, self.y_train)
+			return pca.fit_transform(smX), smy, pca.fit_transform(self.X_test)
 
 		elif resample_method == 'BalancedCascade':
 			BC = unbalanced_dataset.ensemble_sampling\
 						.BalancedCascade(verbose=True, ratio=ratio)
-			bcX, bcy = BC.fit_transform(self.X, self.y)
-			return pca.fit_transform(bcX), bcy
+			bcX, bcy = BC.fit_transform(self.X_train, self.y_train)
+			return pca.fit_transform(bcX), bcy, pca.fit_transform(self.X_test)
 
 		else:
-			return pca.fit_transform(self.X), self.y
+			return pca.fit_transform(self.X_train), self.y_train, pca.fit_transform(self.X_test)
 
