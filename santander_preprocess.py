@@ -14,14 +14,14 @@ class Santander(object):
 		train = pd.read_csv('data/train.csv')
 		test = pd.read_csv('data/test.csv')
 		# Some rows have zero variance
-		train = train.loc[:, train.std() > 0] 
-		test = test.loc[:, test.std() > 0]
+		# train = train.loc[:, train.std() > 0] 
+		# test = test.loc[:, test.std() > 0]
 
-		# Treating -999999 as missing; impute with knn
+		# # Treating -999999 as missing; impute with knn
 		train['var3'] = train['var3'].replace(-999999, 2)
 		test['var3'] = test['var3'].replace(-999999, 2)
 		X_train = train.ix[:, :-1].values
-		y_train = train.ix[:, -1].values.ravel()
+		y_train = train.ix[:, -1].values
 		X_test = test.values
 
 		if self.k_best:

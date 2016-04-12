@@ -10,7 +10,7 @@ from sklearn.ensemble import AdaBoostClassifier
 
 
 print('Performing preprocessing...')
-X_train, y_train, X_test = spp.Santander()\
+X_train, y_train, X_test = spp.Santander(k_best=100)\
 			.preprocess(resample_method='SMOTE', ratio=24.0)
 
 
