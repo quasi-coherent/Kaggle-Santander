@@ -22,7 +22,7 @@ class Santander(object):
 		test['var3'] = test['var3'].replace(-999999, 2)
 		X_train = train.ix[:, :-1].values
 		y_train = train.ix[:, -1].values.ravel()
-		X_test = test.values.ravel()
+		X_test = test.values
 
 		if self.k_best:
 			# Select k best features by F-score
