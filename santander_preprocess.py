@@ -57,7 +57,7 @@ class Santander(object):
 			'OverSampler', 'SMOTE', or 'BalancedCascade'.  
 
 		:return:
-			Preprocessed X_train, y_train, X_test. 
+			Preprocessed train and test sets. 
 		'''
 
 		pca = PCA(n_components=pca_components)
