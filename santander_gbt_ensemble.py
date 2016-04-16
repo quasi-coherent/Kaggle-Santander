@@ -30,18 +30,28 @@ class GBTEnsemble(object):
 
 	def fit(self):
 		sampler = spp.Santander(k_best=self.k_best)
-		for ratio in self.sampling_ratios:
-			print('Fitting GBT with ratio %f...' % ratio)
-			X_train, y_train, _ = \
-			sampler.preprocess(resample_method='SMOTE', ratio=ratio)
-			GBT = GradientBoostingClassifier(learning_rate=self.learning_rate, 
+		# for ratio in self.sampling_ratios:
+		# 	print('Fitting GBT with ratio %f...' % ratio)
+		# 	X_train, y_train, _ = \
+		# 	sampler.preprocess(resample_method='SMOTE', ratio=ratio)
+		# 	GBT = GradientBoostingClassifier(learning_rate=self.learning_rate, 
+		# 								 n_estimators=self.n_estimators,
+		# 								 subsample=self.subsample,
+		# 								 max_depth=self.max_depth,
+		# 								 verbose=1)
+		# 	GBT.fit(X_train, y_train)
+		# 	self.ensemble.append(GBT)
+		# 	print('Done fitting...')
+		X_train, y_train, _ = \
+		sampler.preprocess(resample_method='SMOTE', ratio=1)
+		GBT = GradientBoostingClassifier(learning_rate=self.learning_rate, 
 										 n_estimators=self.n_estimators,
 										 subsample=self.subsample,
 										 max_depth=self.max_depth,
 										 verbose=1)
-			GBT.fit(X_train, y_train)
-			self.ensemble.append(GBT)
-			print('Done fitting...')
+		GBT.fit(X_train, y_train)
+		self.ensemble.append(GBT)
+
 
 	def predict(self):
 		X_test = spp.Santander(k_best=self.k_best).X_test
@@ -50,7 +60,7 @@ class GBTEnsemble(object):
 		n = 1
 		for gbt in self.ensemble:
 			print('Making predictions with GBT %d' % n)
-			preds.append(gbt.predict(X_train))
+			preds.append(gbt.predict(X_test))
 			n += 1
 
 		preds = np.array(preds).T
@@ -66,7 +76,8 @@ if __name__ == '__main__':
 	import pandas as pd
 
 	gbte = GBTEnsemble(max_depth=5)
-	preds = gbte.fit().predict()
+	gbte.fit()
+	preds = gbte.predict()
 	sub = pd.read_csv('data/sample_submission.csv')
 	print('Making submission...')
 	sub.TARGET = preds
