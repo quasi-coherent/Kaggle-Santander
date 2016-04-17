@@ -3,7 +3,8 @@ import numpy as np
 import pandas as pd
 import santander_preprocess
 
-from sklearn.grid_search import GridSearchCV
+from sklearn.metrics import roc_auc_score
+from sklearn.grid_search import RandomizedSearchCV
 from sklearn.cross_validation import KFold, StratifiedKFold
 
 
@@ -16,15 +17,17 @@ class SantanderCV(object):
 		self.resample = resample
 
 
-	def grid_search(self, param_grid, cv=None):
+	def random_search(self, param_distributions, cv=3):
 		'''
-		Grid search to find optimal hyperparameters.
+		Randomized grid search to find optimal hyperparameters.
 		'''
 
-		gscv = GridSearchCV(self.model, param_grid=param_grid, cv=cv, n_jobs=-1, verbose=1)
-		gscv.fit(self.X, self.y)
-		print('Best estimator was %s' % gscv.best_estimator_)
-		return gscv.best_estimator_
+		rscv = RandomizedSearchCV(self.model, param_distributions=param_grid, 
+							scoring='roc_auc', cv=cv, 
+							n_jobs=-1, verbose=1)
+		rscv.fit(self.X, self.y)
+		print('Best estimator was %s' % rscv.best_estimator_)
+		return rscv.best_estimator_
 
 
 	def cross_validation(self, K=10):

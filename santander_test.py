@@ -27,7 +27,7 @@ hrfs = hella_rfs(use_weights = True)
 # grid = [{'n_estimators': np.arange(50, 500, 20), 
 # 			'learning_rate': np.linspace(.1, 2, 10)}]
 # train_cv = scv.SantanderCV(bdt, X_train, y_train, resample=True)
-# bdt_best = train_cv.grid_search(param_grid=grid)
+# bdt_best = train_cv.random_search(param_grid=grid)
 # print('Best model obtained is %s' % abc_best)
 
 

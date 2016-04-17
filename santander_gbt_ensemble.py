@@ -35,13 +35,12 @@ class GBTEnsemble(object):
 			X_train, y_train, _ = \
 			sampler.preprocess(resample_method='SMOTE', ratio=ratio)
 			GBT = GradientBoostingClassifier(learning_rate=self.learning_rate, 
-										 n_estimators=self.n_estimators,
-										 subsample=self.subsample,
-										 max_depth=self.max_depth,
-										 verbose=1)
+					n_estimators=self.n_estimators, subsample=self.subsample,
+					max_depth=self.max_depth, verbose=1)
 			GBT.fit(X_train, y_train)
 			self.ensemble.append(GBT)
-			print('Done fitting...')
+		print('Done fitting...')
+		return self.ensemble
 
 	def predict(self):
 		X_test = spp.Santander(k_best=self.k_best).X_test

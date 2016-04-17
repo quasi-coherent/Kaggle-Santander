@@ -54,7 +54,7 @@ class Santander(object):
 
 		:param resample_method: 
 			Re-sampling method to use.  Can be 'UnderSampler',
-			'OverSampler', 'SMOTE', or 'BalancedCascade'.  
+			'OverSampler', 'SMOTE_SVM', or 'BalancedCascade'.  
 
 		:return:
 			Preprocessed train and test sets. 
@@ -74,9 +74,10 @@ class Santander(object):
 			osX, osy = OS.fit_transform(self.X_train, self.y_train)
 			return pca.fit_transform(osX), osy, pca.fit_transform(self.X_test)
 
-		elif resample_method == 'SMOTE':
+		elif resample_method == 'SMOTE_SVM':
+			svm_args = {'class_weight': 'auto'}
 			SM = unbalanced_dataset.over_sampling\
-						.SMOTE(kind='regular', verbose=True, ratio=ratio)
+						.SMOTE(kind='svm', verbose=True, ratio=ratio, **svm_args)
 			smX, smy = SM.fit_transform(self.X_train, self.y_train)
 			return pca.fit_transform(smX), smy, pca.fit_transform(self.X_test)
 
