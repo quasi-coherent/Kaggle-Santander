@@ -38,7 +38,7 @@ gbt_best = scv.SantanderCV(model=gbt, X=X_train, y=y_train)\
 
 
 print('Making predictions...')
-preds = VotingClassifer([rf_best, gbt_best], voting='soft')\
+preds = VotingClassifier([rf_best, gbt_best], voting='soft')\
 		  .predict(X_test)
 
 
