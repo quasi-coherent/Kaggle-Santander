@@ -74,12 +74,18 @@ class Santander(object):
 			osX, osy = OS.fit_transform(self.X_train, self.y_train)
 			return pca.fit_transform(osX), osy, pca.fit_transform(self.X_test)
 
-		elif resample_method == 'SMOTE_SVM':
-			svm_args = {'class_weight': 'auto'}
+		elif resample_method == 'SMOTE':
 			SM = unbalanced_dataset.over_sampling\
-						.SMOTE(kind='svm', verbose=True, ratio=ratio, **svm_args)
+						.SMOTE(kind='regular', verbose=True, ratio=ratio)
 			smX, smy = SM.fit_transform(self.X_train, self.y_train)
 			return pca.fit_transform(smX), smy, pca.fit_transform(self.X_test)
+
+		elif resample_method == 'SMOTE_SVM':
+			svm_args = {'class_weight': 'auto'}
+			SMSVM = unbalanced_dataset.over_sampling\
+						.SMOTE(kind='svm', verbose=True, ratio=ratio, **svm_args)
+			smsvmX, smsvmy = SMSVM.fit_transform(self.X_train, self.y_train)
+			return pca.fit_transform(smsvmX), smsvmy, pca.fit_transform(self.X_test)
 
 		elif resample_method == 'BalancedCascade':
 			BC = unbalanced_dataset.ensemble_sampling\

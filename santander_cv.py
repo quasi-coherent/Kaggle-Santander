@@ -22,7 +22,7 @@ class SantanderCV(object):
 		Randomized grid search to find optimal hyperparameters.
 		'''
 
-		rscv = RandomizedSearchCV(self.model, param_distributions=param_grid, 
+		rscv = RandomizedSearchCV(self.model, param_distributions=param_distributions, 
 							scoring='roc_auc', cv=cv, 
 							n_jobs=-1, verbose=1)
 		rscv.fit(self.X, self.y)
