@@ -37,8 +37,11 @@ gbt_best = scv.SantanderCV(model=gbt, X=X_train, y=y_train)\
 		  .random_search(param_distributions=gbt_param)
 
 
+clf1 = RandomForestClassifier(**rf_best.get_params())
+clf2 = GradientBoostingClassifier(**gbt_best.get_params())
 print('Making predictions...')
-preds = VotingClassifier([rf_best, gbt_best], voting='soft')\
+preds = VotingClassifier([('rf', clf1), ('gbt', clf2)], voting='soft')\
+		  .fit(X_train, y_train)\
 		  .predict(X_test)
 
 
