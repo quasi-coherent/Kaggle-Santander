@@ -74,7 +74,7 @@ class Santander(object):
 			OS = unbalanced_dataset.over_sampling\
 						.OverSampler(verbose=True, ratio=ratio)
 			self.X_train, self.y_train = OS.fit_transform(self.X_train, self.y_train)
-			return self.X_train, self.y_train self.X_test
+			return self.X_train, self.y_train, self.X_test
 
 		elif resample_method == 'SMOTE':
 			SM = unbalanced_dataset.over_sampling\
