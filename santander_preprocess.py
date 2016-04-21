@@ -9,8 +9,7 @@ from sklearn.decomposition import PCA
 
 
 class Santander(object):
-	def __init__(self, k_best=False):
-		self.k_best = k_best
+	def __init__(self, pca_components=None, whiten=True, k_best=False):
 		train = pd.read_csv('data/train.csv')
 		test = pd.read_csv('data/test.csv')
 		# Some rows have zero variance
@@ -24,9 +23,14 @@ class Santander(object):
 		y_train = train.ix[:, -1].values
 		X_test = test.values
 
-		if self.k_best:
+		# Perform PCA
+		pca = PCA(n_components=pca_components, whiten=whiten)
+		X_train, y_train = pca.fit_transform(X_train, y_train)
+		X_test = pca.fit_transform(X_test)
+
+		if k_best:
 			# Select k best features by F-score
-			kb = SelectKBest(f_classif, k=self.k_best)
+			kb = SelectKBest(f_classif, k=k_best)
 			X_train = kb.fit_transform(X_train, y_train)
 			X_test = kb.transform(X_test)
 			
@@ -35,7 +39,7 @@ class Santander(object):
 		self.X_test = X_test
 
 
-	def preprocess(self, pca_components=None, resample_method=None, ratio=1.0):
+	def preprocess(self, resample_method=None, ratio=1.0):
 		'''
 		First, uses principal component analysis to reduce 
 		dimensionality of the dataset.  
@@ -59,40 +63,38 @@ class Santander(object):
 		:return:
 			Preprocessed train and test sets. 
 		'''
-
-		pca = PCA(n_components=pca_components)
 		
 		if resample_method == 'UnderSampler':
 			US = unbalanced_dataset.under_sampling\
 						.UnderSampler(verbose=True, ratio=ratio)
-			usX, usy = US.fit_transform(self.X_train, self.y_train)
-			return pca.fit_transform(usX), usy, pca.fit_transform(self.X_test)
+			self.X_train, self.y_train = US.fit_transform(self.X_train, self.y_train)
+			return self.X_train, self.y_train, self.X_test
 
 		elif resample_method == 'OverSampler':
 			OS = unbalanced_dataset.over_sampling\
 						.OverSampler(verbose=True, ratio=ratio)
-			osX, osy = OS.fit_transform(self.X_train, self.y_train)
-			return pca.fit_transform(osX), osy, pca.fit_transform(self.X_test)
+			self.X_train, self.y_train = OS.fit_transform(self.X_train, self.y_train)
+			return self.X_train, self.y_train self.X_test
 
 		elif resample_method == 'SMOTE':
 			SM = unbalanced_dataset.over_sampling\
 						.SMOTE(kind='regular', verbose=True, ratio=ratio)
-			smX, smy = SM.fit_transform(self.X_train, self.y_train)
-			return pca.fit_transform(smX), smy, pca.fit_transform(self.X_test)
+			self.X_train, self.y_train = SM.fit_transform(self.X_train, self.y_train)
+			return self.X_train, self.y_train, self.X_test
 
 		elif resample_method == 'SMOTE_SVM':
 			svm_args = {'class_weight': 'auto'}
 			SMSVM = unbalanced_dataset.over_sampling\
 						.SMOTE(kind='svm', verbose=True, ratio=ratio, **svm_args)
-			smsvmX, smsvmy = SMSVM.fit_transform(self.X_train, self.y_train)
-			return pca.fit_transform(smsvmX), smsvmy, pca.fit_transform(self.X_test)
+			self.X_train, self.y_train = SMSVM.fit_transform(self.X_train, self.y_train)
+			return self.X_train, self.y_train, self.X_test
 
 		elif resample_method == 'BalancedCascade':
 			BC = unbalanced_dataset.ensemble_sampling\
 						.BalancedCascade(verbose=True, ratio=ratio)
-			bcX, bcy = BC.fit_transform(self.X_train, self.y_train)
-			return pca.fit_transform(bcX), bcy, pca.fit_transform(self.X_test)
+			self.X_train, self.y_train = BC.fit_transform(self.X_train, self.y_train)
+			self.X_train, self.y_train, self.X_test
 
 		else:
-			return pca.fit_transform(self.X_train), self.y_train, pca.fit_transform(self.X_test)
+			return self.X_train, self.y_train, self.X_test
 
