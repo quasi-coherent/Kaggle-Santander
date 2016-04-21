@@ -25,7 +25,7 @@ class Santander(object):
 
 		# Perform PCA
 		pca = PCA(n_components=pca_components, whiten=whiten)
-		X_train, y_train = pca.fit_transform(X_train, y_train)
+		X_train = pca.fit_transform(X_train, y_train)
 		X_test = pca.fit_transform(X_test)
 
 		if k_best:
