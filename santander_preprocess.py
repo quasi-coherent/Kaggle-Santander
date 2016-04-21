@@ -29,6 +29,8 @@ class Santander(object):
 		X_test = pca.fit_transform(X_test)
 
 		if k_best:
+			if k_best > pca_components:
+				k_best='all'
 			# Select k best features by F-score
 			kb = SelectKBest(f_classif, k=k_best)
 			X_train = kb.fit_transform(X_train, y_train)
