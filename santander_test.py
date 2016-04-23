@@ -10,17 +10,17 @@ from sklearn.ensemble import AdaBoostClassifier
 
 
 print('Performing preprocessing...')
-X_train, y_train, X_test = spp.Santander(k_best=100)\
+X_train, y_train, X_test = spp.Santander(k_best=False)\
 			.preprocess(resample_method=None, ratio=23.0)
-
-
+#X_train, y_train, X_test = spp.Santander(k_best=False)\
+			.dim_reduce(reduce_method = 'kpca', n_components = 100)
 #bdt = AdaBoostClassifier(DecisionTreeClassifier(max_depth=1), 
 						#algorithm='SAMME',
 						#n_estimators=1000,
 						#learning_rate=0.2)
 
 from hella_rfs import hella_rfs
-hrfs = hella_rfs(use_weights = True)
+hrfs = hella_rfs(use_weights = False)
 
 # This would take a while, i.e., forever.  
 # print('Doing grid search...')
@@ -37,4 +37,4 @@ hrfs = hella_rfs(use_weights = True)
 
 
 print('Now making submission...')
-sps.kaggle_submit(hrfs, X_train, y_train, X_test, 'hella_rfs')
+sps.kaggle_submit(hrfs, X_train, y_train, X_test, 'hella_rfs_kpca')
